@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>钱钱简历岗位匹配诊断</title>
+  <style>
+:root {
+  color-scheme: light;
+  --ink: #172a3a;
+  --muted: #667684;
+  --navy: #17324d;
+  --teal: #17836d;
+  --orange: #f59e52;
+  --surface: #ffffff;
+  --canvas: #f3f6f8;
+  --line: #dce4e9;
+  --good: #dff4ec;
+  --warn: #fff0dc;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: radial-gradient(circle at 80% 0%, #e0f3ed 0, transparent 30%), var(--canvas);
+  font: 15px/1.6 system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+}
+.shell { width: min(1120px, calc(100% - 32px)); margin: 36px auto 72px; }
+.hero {
+  display: flex; justify-content: space-between; align-items: end; gap: 32px;
+  padding: 30px 34px; color: white; border-radius: 22px;
+  background: linear-gradient(135deg, #17324d, #24566d); box-shadow: 0 20px 50px #17324d26;
+}
+.eyebrow { margin: 0 0 6px; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; font-weight: 700; opacity: .8; }
+h1 { margin: 0; font-size: clamp(30px, 5vw, 48px); line-height: 1.15; }
+.subtitle { max-width: 650px; margin: 12px 0 0; color: #d9e8ee; font-size: 16px; }
+.privacy { flex: 0 0 auto; padding: 9px 14px; border: 1px solid #ffffff40; border-radius: 999px; background: #ffffff12; font-size: 13px; }
+.input-grid, .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 22px; }
+.panel, .result-card, .score-card, .empty-state {
+  display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 10px 30px #17324d0c;
+}
+.panel { padding: 18px; }
+.label-row, .card-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.label-row span { color: var(--muted); font-size: 12px; }
+textarea {
+  width: 100%; min-height: 260px; margin-top: 12px; padding: 15px; resize: vertical;
+  border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fbfcfd;
+  font: inherit; outline: none; transition: border .2s, box-shadow .2s;
+}
+textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px #17836d18; }
+.actions { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+button { border: 0; border-radius: 11px; padding: 11px 18px; font: inherit; font-weight: 700; cursor: pointer; }
+.primary { color: white; background: var(--teal); box-shadow: 0 8px 18px #17836d30; }
+.secondary { color: var(--navy); background: #dfeef2; }
+.ghost, .copy { color: var(--muted); background: transparent; border: 1px solid var(--line); }
+.empty-state { padding: 52px 20px; text-align: center; color: var(--muted); }
+.empty-state h2 { margin: 8px 0 2px; color: var(--ink); }
+.empty-icon { width: 46px; height: 46px; margin: auto; display: grid; place-items: center; border-radius: 14px; color: white; background: var(--orange); font-size: 25px; }
+.hidden { display: none; }
+.score-card { display: flex; align-items: center; gap: 28px; padding: 24px 28px; }
+.score-card h2 { margin: 0; font-size: 27px; }
+.muted { margin: 4px 0 0; color: var(--muted); }
+.score-ring {
+  --score-deg: 0deg; flex: 0 0 auto; width: 116px; height: 116px; border-radius: 50%;
+  display: grid; place-content: center; text-align: center; position: relative;
+  background: conic-gradient(var(--teal) var(--score-deg), #e6ecef 0);
+}
+.score-ring::after { content: ""; position: absolute; inset: 9px; border-radius: 50%; background: white; }
+.score-ring span, .score-ring small { position: relative; z-index: 1; }
+.score-ring span { font-size: 35px; font-weight: 800; line-height: 1; }
+.score-ring small { color: var(--muted); }
+.result-card { padding: 20px; }
+.result-card h3 { margin: 0; font-size: 17px; }
+.badge { min-width: 28px; padding: 2px 9px; border-radius: 999px; text-align: center; font-weight: 800; }
+.badge.good { background: var(--good); color: #126652; }
+.badge.warn { background: var(--warn); color: #9b541d; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; min-height: 30px; }
+.chip { padding: 5px 10px; border-radius: 999px; background: #eef3f5; color: #3f5361; font-size: 13px; }
+.chip.good { background: var(--good); color: #126652; }
+.chip.warn { background: var(--warn); color: #9b541d; }
+.suggestions { margin-top: 18px; }
+.suggestions ol { margin: 14px 0 0; padding-left: 24px; }
+.suggestions li { margin: 8px 0; padding-left: 5px; }
+.copy { padding: 7px 12px; font-size: 13px; }
+.disclaimer { margin: 18px 4px; color: var(--muted); font-size: 12px; text-align: center; }
+@media (max-width: 760px) {
+  .shell { width: min(100% - 20px, 1120px); margin-top: 12px; }
+  .hero { align-items: start; flex-direction: column; padding: 24px; }
+  .input-grid, .result-grid { grid-template-columns: 1fr; }
+  textarea { min-height: 220px; }
+  .actions { flex-wrap: wrap; }
+  .score-card { align-items: flex-start; }
+}
+
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">本地运行 · 不上传简历</p>
+        <h1>简历岗位匹配诊断</h1>
+        <p class="subtitle">粘贴招聘要求和简历，快速发现关键词缺口、表达风险与优先修改项。</p>
+      </div>
+      <div class="privacy">本地隐私保护：文本不上传</div>
+    </header>
+
+    <section class="input-grid">
+      <label class="panel">
+        <span class="label-row"><strong>目标岗位招聘要求</strong><span id="jdCount">0 字</span></span>
+        <textarea id="jobDescription" placeholder="粘贴岗位职责、任职要求、加分项……"></textarea>
+      </label>
+      <label class="panel">
+        <span class="label-row"><strong>候选人简历</strong><span id="resumeCount">0 字</span></span>
+        <textarea id="resume" placeholder="粘贴简历正文，姓名、电话等隐私可以删除……"></textarea>
+      </label>
+    </section>
+
+    <div class="actions">
+      <button id="analyze" class="primary">开始诊断</button>
+      <button id="loadDemo" class="secondary">载入示例</button>
+      <button id="clear" class="ghost">清空</button>
+    </div>
+
+    <section id="emptyState" class="empty-state">
+      <div class="empty-icon">01</div>
+      <h2>先放入岗位要求和简历</h2>
+      <p>工具会生成匹配分、已覆盖关键词、缺失关键词和修改建议。</p>
+    </section>
+
+    <section id="results" class="results hidden" aria-live="polite">
+      <div class="score-card">
+        <div class="score-ring" id="scoreRing"><span id="score">0</span><small>匹配分</small></div>
+        <div>
+          <p class="eyebrow">诊断结论</p>
+          <h2 id="verdict">需要优化</h2>
+          <p id="summary" class="muted"></p>
+        </div>
+      </div>
+
+      <div class="result-grid">
+        <article class="result-card">
+          <div class="card-title"><h3>已覆盖关键词</h3><span id="matchedCount" class="badge good">0</span></div>
+          <div id="matched" class="chips"></div>
+        </article>
+        <article class="result-card">
+          <div class="card-title"><h3>建议补充关键词</h3><span id="missingCount" class="badge warn">0</span></div>
+          <div id="missing" class="chips"></div>
+        </article>
+      </div>
+
+      <article class="result-card suggestions">
+        <div class="card-title"><h3>优先修改建议</h3><button id="copyReport" class="copy">复制报告</button></div>
+        <ol id="suggestions"></ol>
+      </article>
+
+      <p class="disclaimer">本工具只做文本诊断，不保证面试或录用结果，也不建议编造经历或数据。</p>
+    </section>
+  </main>
+  <script>
+const $ = (id) => document.getElementById(id);
+
+const stopWords = new Set([
+  "负责", "相关", "以上", "优先", "熟悉", "具备", "能够", "工作", "岗位", "要求", "经验", "能力", "进行", "以及", "良好", "较强", "我们", "公司", "团队", "完成", "使用", "参与", "项目", "专业", "本科", "内容", "业务", "支持", "独立", "包括", "通过", "根据", "至少", "具有", "职位", "任职"
+]);
+
+const skillLexicon = [
+  "电商运营", "店铺运营", "用户运营", "内容运营", "社群运营", "产品运营", "直播运营", "新媒体运营",
+  "抖音", "小红书", "视频号", "微信公众号", "淘宝", "天猫", "京东", "拼多多", "亚马逊", "Shopify",
+  "内容排期", "短视频", "直播", "活动策划", "品牌策划", "营销策划", "市场调研", "竞品分析", "数据分析",
+  "用户增长", "增长策略", "广告投放", "信息流投放", "搜索引擎优化", "SEO", "SEM", "私域运营",
+  "流量", "转化率", "客单价", "复购率", "点击率", "留存率", "销售额", "ROI", "GMV", "成本控制",
+  "Excel", "PowerPoint", "Word", "SQL", "Python", "Java", "JavaScript", "TypeScript", "React", "Vue", "Node.js",
+  "Go", "C++", "C#", "Linux", "Docker", "Kubernetes", "Git", "AWS", "Azure", "机器学习", "深度学习",
+  "自然语言处理", "计算机视觉", "大模型", "提示词", "数据建模", "数据可视化", "Tableau", "Power BI",
+  "产品设计", "产品规划", "需求分析", "原型设计", "用户研究", "交互设计", "UI设计", "Figma", "Axure",
+  "项目管理", "风险管理", "供应链管理", "库存管理", "采购管理", "质量管理", "流程优化", "跨部门协作",
+  "客户管理", "客户开发", "商务拓展", "渠道销售", "销售管理", "合同管理", "谈判", "回款",
+  "人才招聘", "绩效管理", "薪酬", "员工关系", "培训", "组织发展", "财务分析", "预算管理", "成本核算",
+  "审计", "税务", "会计", "文案写作", "内容创作", "英文", "日语", "沟通协调", "团队管理"
+];
+
+const demo = {
+  jd: `招聘电商运营专员。负责抖音、小红书店铺日常运营，制定内容排期，分析流量、转化率、客单价和复购率。要求熟练使用Excel，能够进行数据分析和竞品分析，有直播运营、活动策划经验优先。`,
+  resume: `两年电商运营经验，负责店铺商品上架、活动报名和客服协同。使用Excel制作周报，优化商品标题。参与618活动，活动期间销售额提升25%。维护抖音账号并发布短视频内容。`
+};
+
+function normalize(text) {
+  return text.toLowerCase().replace(/[\s,，。；;：:、()（）【】\[\]\/]+/g, " ");
+}
+
+function extractKeywords(text) {
+  const normalized = normalize(text);
+  const english = normalized.match(/[a-z][a-z0-9+#.\-]{1,}/g) || [];
+  const lexiconMatches = skillLexicon.filter((term) => normalized.includes(term.toLowerCase()));
+
+  const counts = new Map();
+  [...lexiconMatches, ...english].forEach((word) => {
+    if (stopWords.has(word) || /^\d+$/.test(word)) return;
+    counts.set(word, (counts.get(word) || 0) + 1);
+  });
+
+  return [...counts.entries()]
+    .sort((a, b) => (b[1] - a[1]) || (b[0].length - a[0].length))
+    .filter(([word], index, list) => !list.slice(0, index).some(([chosen]) => chosen.toLowerCase().includes(word.toLowerCase())))
+    .slice(0, 18)
+    .map(([word]) => word);
+}
+
+function containsKeyword(text, keyword) {
+  return normalize(text).includes(keyword.toLowerCase());
+}
+
+function createChip(word, type) {
+  const span = document.createElement("span");
+  span.className = `chip ${type}`;
+  span.textContent = word;
+  return span;
+}
+
+function buildSuggestions(jd, resume, matched, missing) {
+  const suggestions = [];
+  const numberMatches = resume.match(/\d+(?:\.\d+)?[%万千百]?/g) || [];
+  const bullets = resume.split(/\n+/).filter((line) => line.trim().length > 10);
+
+  if (missing.length) suggestions.push(`优先核对并补充这些真实经历相关词：${missing.slice(0, 5).join("、")}。没有做过的内容不要硬写。`);
+  if (numberMatches.length < 2) suggestions.push("量化成果偏少。为关键经历补充规模、频次、效率、转化、成本或增长数据。");
+  if (bullets.length < 3) suggestions.push("经历结构不够清晰。建议按“动作 + 方法 + 结果”拆成3至5条要点。");
+  if (!/[提升增长降低节省优化达成转化]/.test(resume)) suggestions.push("结果导向词较少。把“负责、参与”改写为明确动作，并说明带来的结果。");
+  if (resume.length < 180) suggestions.push("简历信息量偏少。补充与目标岗位直接相关的项目、工具、职责范围和成果证据。");
+  if (resume.length > 1800) suggestions.push("简历正文较长。删除重复职责和弱相关内容，把核心卖点放在前半页。");
+  if (matched.length >= 8) suggestions.push("关键词覆盖不错，下一步重点检查这些词是否有真实案例和结果支撑，而不是只做堆砌。");
+  return suggestions.slice(0, 5);
+}
+
+function analyze() {
+  const jd = $("jobDescription").value.trim();
+  const resume = $("resume").value.trim();
+  if (jd.length < 20 || resume.length < 20) {
+    alert("请至少分别输入20个字的岗位要求和简历内容。");
+    return;
+  }
+
+  const keywords = extractKeywords(jd);
+  const matched = keywords.filter((word) => containsKeyword(resume, word));
+  const missing = keywords.filter((word) => !containsKeyword(resume, word));
+  const coverage = keywords.length ? matched.length / keywords.length : 0;
+  const evidenceBonus = Math.min(15, ((resume.match(/\d+(?:\.\d+)?[%万千百]?/g) || []).length * 3));
+  const structureBonus = Math.min(10, resume.split(/\n+/).filter((line) => line.trim().length > 10).length * 2);
+  const score = Math.min(100, Math.round(coverage * 75 + evidenceBonus + structureBonus));
+  const verdict = score >= 75 ? "匹配度较高" : score >= 50 ? "有基础，需要定向补强" : "岗位匹配表达不足";
+  const summary = `识别 ${keywords.length} 个重点词，已覆盖 ${matched.length} 个。分数只代表文本匹配与表达证据，不代表录用概率。`;
+  const suggestions = buildSuggestions(jd, resume, matched, missing);
+
+  $("score").textContent = score;
+  $("scoreRing").style.setProperty("--score-deg", `${score * 3.6}deg`);
+  $("verdict").textContent = verdict;
+  $("summary").textContent = summary;
+  $("matchedCount").textContent = matched.length;
+  $("missingCount").textContent = missing.length;
+  $("matched").replaceChildren(...(matched.length ? matched.map((x) => createChip(x, "good")) : [createChip("暂未识别", "")]));
+  $("missing").replaceChildren(...(missing.length ? missing.map((x) => createChip(x, "warn")) : [createChip("无明显缺口", "good")]));
+  $("suggestions").replaceChildren(...suggestions.map((text) => {
+    const li = document.createElement("li"); li.textContent = text; return li;
+  }));
+  $("emptyState").classList.add("hidden");
+  $("results").classList.remove("hidden");
+  $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function updateCounts() {
+  $("jdCount").textContent = `${$("jobDescription").value.length} 字`;
+  $("resumeCount").textContent = `${$("resume").value.length} 字`;
+}
+
+$("analyze").addEventListener("click", analyze);
+$("loadDemo").addEventListener("click", () => {
+  $("jobDescription").value = demo.jd; $("resume").value = demo.resume; updateCounts(); analyze();
+});
+$("clear").addEventListener("click", () => {
+  $("jobDescription").value = ""; $("resume").value = ""; updateCounts();
+  $("results").classList.add("hidden"); $("emptyState").classList.remove("hidden");
+});
+$("jobDescription").addEventListener("input", updateCounts);
+$("resume").addEventListener("input", updateCounts);
+$("copyReport").addEventListener("click", async () => {
+  const report = `简历岗位匹配诊断\n匹配分：${$("score").textContent}\n结论：${$("verdict").textContent}\n${$("summary").textContent}\n\n优先建议：\n${[...$("suggestions").children].map((li, i) => `${i + 1}. ${li.textContent}`).join("\n")}`;
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(report);
+    copied = true;
+  } catch {
+    const helper = document.createElement("textarea");
+    helper.value = report;
+    helper.style.position = "fixed";
+    helper.style.opacity = "0";
+    document.body.appendChild(helper);
+    helper.select();
+    copied = document.execCommand("copy");
+    helper.remove();
+  }
+  $("copyReport").textContent = copied ? "已复制" : "请手动复制";
+  setTimeout(() => { $("copyReport").textContent = "复制报告"; }, 1400);
+});
+
+</script>
+</body>
+</html>
+
