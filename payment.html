@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="钱钱工具铺的微信、支付宝与 PayPal 付款入口。">
+  <title>付款方式｜钱钱工具铺</title>
+  <style>
+    :root{--ink:#18201d;--muted:#63706a;--paper:#f7f4ed;--green:#1d6b4f;--line:#d9ded8;--blue:#1677ff;--wx:#07c160}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font-family:"Microsoft YaHei","PingFang SC",sans-serif;line-height:1.65}.wrap{width:min(1040px,calc(100% - 36px));margin:auto}.hero{padding:64px 0 42px;color:#fff;background:linear-gradient(135deg,#102f26,#27755a)}a{color:inherit}.back{display:inline-block;margin-bottom:22px;color:rgba(255,255,255,.78)}h1{margin:0;font-size:clamp(38px,6vw,64px);line-height:1.1}.hero p{max-width:740px;color:rgba(255,255,255,.78)}main{padding:56px 0}.notice{margin-bottom:28px;padding:20px 24px;border-left:5px solid var(--green);background:#fff}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}.card{padding:26px;border:1px solid var(--line);border-radius:24px;background:#fff;text-align:center;box-shadow:0 14px 40px rgba(30,54,43,.06)}.card h2{margin:4px 0 8px}.card p{color:var(--muted);font-size:14px}.qr{display:block;width:100%;max-height:620px;margin:20px auto;object-fit:contain;border-radius:16px;background:#fff}.wx{border-top:6px solid var(--wx)}.ali{border-top:6px solid var(--blue)}.paypal{grid-column:1/-1}.button{display:inline-block;padding:12px 20px;border-radius:999px;color:#fff;background:var(--green);font-weight:700;text-decoration:none}.codes{margin:30px 0;padding:24px;border-radius:20px;background:#e8eee8}.codes ul{margin-bottom:0}.fine{color:var(--muted);font-size:13px}footer{padding:28px 0;color:rgba(255,255,255,.7);background:#102f26}@media(max-width:720px){.grid{grid-template-columns:1fr}.paypal{grid-column:auto}.hero{padding-top:44px}.card{padding:18px}}
+  </style>
+</head>
+<body>
+  <header class="hero"><div class="wrap"><a class="back" href="index.html">← 返回商品页</a><h1>选择付款方式</h1><p>付款前请确认商品、金额和币种。支付平台可能在确认页显示收款账户实名，请核对无误后再付款。</p></div></header>
+  <main class="wrap">
+    <div class="notice"><b>重要：</b>付款备注请填写“商品代码 + 收件邮箱”。不要在公开 GitHub Issue 留下邮箱、简历或付款截图。</div>
+    <section class="grid">
+      <article class="card wx"><h2>微信支付</h2><p>使用微信扫一扫。原图昵称已打码。</p><img class="qr" id="wechatQr" alt="微信支付收款码"></article>
+      <article class="card ali"><h2>支付宝</h2><p>使用支付宝扫一扫。原图昵称已打码。</p><img class="qr" id="alipayQr" alt="支付宝收款码"></article>
+      <article class="card paypal"><h2>PayPal</h2><p>适合境外付款；打开后请核对 PayPal 确认页。</p><a class="button" href="https://paypal.me/bubuice27" target="_blank" rel="noopener noreferrer">打开 PayPal.Me</a></article>
+    </section>
+    <section class="codes"><b>商品代码</b><ul><li><code>BUDGET</code>：个人预算模板，9.9 元</li><li><code>RESUME</code>：简历诊断工具，19.9 元</li><li><code>BUNDLE</code>：双工具组合包，24.9 元</li></ul></section>
+    <p class="fine">付款成功不代表自动交付。请确保付款备注中有可接收文件的邮箱；只有确认到账的款项才计入实际收入。</p>
+  </main>
+  <footer><div class="wrap">钱钱工具铺 · 不承诺录用或理财收益</div></footer>
+  <script src="payment-images.js"></script>
+</body>
+</html>
